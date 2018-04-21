@@ -14,6 +14,7 @@ Pacman * MapController::createPacman(int col, int row)
 	instance->beforeMovingPosition = instance->getPosition();
 	instance->setSpeed(100);
 	instance->setZOrder(2);
+	instance->setContentSize(instance->sprite->getContentSize() / 2);
 	return instance;
 }
 
@@ -26,7 +27,8 @@ Ghost * MapController::createGhost(int col, int row)
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
 	instance->beforeMovingPosition = instance->getPosition();
 	instance->setSpeed(100);
-	instance->setZOrder(2);
+	instance->setZOrder(1);
+	instance->setContentSize(instance->sprite->getContentSize() / 2);
 	return instance;
 }
 
@@ -61,6 +63,15 @@ TileBlock * MapController::createTileFree(int col, int row)
 {
 	auto instance = TileBlock::create();
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->mapController = this;
+	return instance;
+}
+
+TileBase * MapController::createTileBase(int col, int row)
+{
+	auto instance = TileBase::create();
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->mapController = this;
 	return instance;
 }
 
@@ -68,6 +79,8 @@ Vec2 MapController::getBlockOrigin()
 {
 	return Vec2(blockSize / 2.0f, -blockSize / 2.0f);
 }
+
+//-------------------- GAMEPLAY FUNTION (PUBLIC) -------------------------- //
 
 void MapController::changeGhostForm(GhostForm form)
 {
@@ -101,7 +114,7 @@ void MapController::parseMap()
 		for (int j = 0; j < map.at(i).size(); j++) {
 			char item = map.at(i).at(j);
 			if (item == '+' || item == '=' || item == '-' ||
-				item == '|' || item == ':' || item == 'X') {
+				item == '|' || item == ':' || item == 'X' || item == 'G') {
 				auto block = createTileBlock(j, i);
 				this->addChild(block);
 				line.pushBack(block);
@@ -135,27 +148,35 @@ void MapController::parseMap()
 				this->addChild(tileFood);
 				line.pushBack(tileFood);
 			}
+			else if (item == 'B') {
+				this->base = createTileBase(j, i);
+				this->addChild(this->base);
+				line.pushBack(base);
+			}
 			else {
 				line.pushBack(createTileFree(j, i));
 			}
 		}
 		mapObject.push_back(line);
 	}
-
+	for each(Ghost* ghost in ghosts) {
+		ghost->setTarget(player);
+	}
 	this->ready = true;
 }
 
-bool MapController::isWalkable(Vec2 position)
+bool MapController::isWalkable(Vec2 position, GhostForm form)
 {
 	int row = (int)(-position.y / blockSize);
 	int col = (int)(position.x / blockSize);
 	char item = map.at(row).at(col);
-	if (item == '+' || item == '=' || item == '-' ||
-		item == '|' || item == ':' || item == 'X' ||
-		item == 'U') {
-		return false;
+
+	std::vector<char> banList = { '+', '=', '-', '|', ':', 'X', 'U' };
+	if (form != GhostForm::Eaten) {
+		banList.push_back('G');
 	}
-	return true;
+
+	return std::find(banList.begin(), banList.end(), item) == banList.end();
 }
 
 bool MapController::isPositionValid(Vec2 position)
@@ -182,10 +203,10 @@ TileMap * MapController::positionToObject(Vec2 position)
 	return this->mapObject.at(row).at(col);
 }
 
-Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
+Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des, Vec2 passedPosition, GhostForm form)
 {
 	Vec2 pos = source;
-	Vec2 desPos = player->getPosition();
+	Vec2 desPos = des;
 	Vec2 min = pos;
 	Vec2 posArray[4] = {
 		pos + Vec2(0, blockSize),
@@ -197,7 +218,7 @@ Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
 
 	float minDistance = std::numeric_limits<float>::max();
 	for (int i = 0; i < 4; i++) {
-		if (isPositionValid(posArray[i]) && isWalkable(posArray[i]) && posArray[i] != passedPosition) {
+		if (isPositionValid(posArray[i]) && isWalkable(posArray[i], form) && posArray[i] != passedPosition) {
 			float distance = posArray[i].distance(desPos);
 			if (minDistance > distance) {
 				minDistance = distance;
@@ -208,10 +229,9 @@ Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
 	return min;
 }
 
-Vec2 MapController::getFurthestPositionIgnore(Vec2 source, Vec2 passedPosition)
-{
+Vec2 MapController::getFurthestPosition(Vec2 source, Vec2 des, Vec2 passedPosition, GhostForm form) {
 	Vec2 pos = source;
-	Vec2 desPos = player->getPosition();
+	Vec2 desPos = des;
 	Vec2 max = pos;
 	Vec2 posArray[4] = {
 		pos + Vec2(0, blockSize),
@@ -223,7 +243,7 @@ Vec2 MapController::getFurthestPositionIgnore(Vec2 source, Vec2 passedPosition)
 
 	float maxDistance = -1;
 	for (int i = 0; i < 4; i++) {
-		if (isPositionValid(posArray[i]) && isWalkable(posArray[i]) && posArray[i] != passedPosition) {
+		if (isPositionValid(posArray[i]) && isWalkable(posArray[i], form) && posArray[i] != passedPosition) {
 			float distance = posArray[i].distance(desPos);
 			if (maxDistance < distance) {
 				maxDistance = distance;
@@ -232,31 +252,6 @@ Vec2 MapController::getFurthestPositionIgnore(Vec2 source, Vec2 passedPosition)
 		}
 	}
 	return max;
-}
-
-Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des)
-{
-	Vec2 pos = source;
-	Vec2 desPos = des;
-	Vec2 min = pos;
-	Vec2 posArray[4] = {
-		pos + Vec2(0, blockSize),
-		pos + Vec2(0, -blockSize),
-		pos + Vec2(-blockSize, 0),
-		pos + Vec2(blockSize, 0)
-	};
-
-	float minDistance = std::numeric_limits<float>::max();
-	for (int i = 0; i < 4; i++) {
-		if (isWalkable(posArray[i])) {
-			float distance = posArray[i].distance(desPos);
-			if (minDistance > distance) {
-				minDistance = distance;
-				min = posArray[i];
-			}
-		}
-	}
-	return min;
 }
 
 void MapController::reduceFoodCount()

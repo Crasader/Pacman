@@ -23,6 +23,11 @@ bool StaticObject::initialize(cocos2d::Sprite * sprite, std::string labelText, M
 	return true;
 }
 
+void StaticObject::setMapController(MapController * mapController)
+{
+	this->mapController = mapController;
+}
+
 void StaticObject::enableLabel(bool enable)
 {
 	if (enable) {

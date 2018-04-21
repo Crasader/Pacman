@@ -158,7 +158,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="..\Classes\Pacman.cpp" />
     <ClCompile Include="..\Classes\PlayScene.cpp" />
     <ClCompile Include="..\Classes\StaticObject.cpp" />
-    <ClCompile Include="..\Classes\TeleportTile.cpp" />
+    <ClCompile Include="..\Classes\TileBase.cpp" />
     <ClCompile Include="..\Classes\TileBlock.cpp" />
     <ClCompile Include="..\Classes\TileFood.cpp" />
     <ClCompile Include="..\Classes\TileMap.cpp" />
@@ -176,7 +176,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="..\Classes\Pacman.h" />
     <ClInclude Include="..\Classes\PlayScene.h" />
     <ClInclude Include="..\Classes\StaticObject.h" />
-    <ClInclude Include="..\Classes\TeleportTile.h" />
+    <ClInclude Include="..\Classes\TileBase.h" />
     <ClInclude Include="..\Classes\TileBlock.h" />
     <ClInclude Include="..\Classes\TileFood.h" />
     <ClInclude Include="..\Classes\TileMap.h" />

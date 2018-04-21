@@ -19,6 +19,7 @@ public:
 	virtual bool initialize(cocos2d::Sprite* sprite, std::string labelText);
 	virtual bool initialize(cocos2d::Sprite* sprite, std::string labelText, MapController* mapController);
 
+	virtual void setMapController(MapController* mapController);
 	virtual void enableLabel(bool enable);
 	virtual bool isReady();
 public:

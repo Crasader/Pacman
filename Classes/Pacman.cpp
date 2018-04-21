@@ -1,6 +1,7 @@
 #include "Pacman.h"
 #include "MapController.h"
 
+
 void Pacman::setMap(MapController* mapController)
 {
 	this->mapController = mapController;
@@ -63,6 +64,9 @@ bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText, MapCont
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_2) {
 			mapController->changeGhostForm(GhostForm::Bad);
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_3) {
+			mapController->changeGhostForm(GhostForm::Eaten);
 		}
 	};
 	this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);

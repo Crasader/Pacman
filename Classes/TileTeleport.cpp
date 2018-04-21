@@ -1,11 +1,23 @@
 #include "TileTeleport.h"
 
 
-bool TileTeleport::triggerTile(MovableObject * node, Direction direction)
+bool TileTeleport::triggerTile(Pacman * node, Direction direction)
 {
 	if (TileMap::triggerTile(node, direction)) {
 		node->setPosition(linkTile->getPosition());
 		node->beforeMovingPosition = node->getPosition();
+		return true;
+	}
+	return false;
+}
+
+bool TileTeleport::triggerTile(Ghost * node, Direction direction)
+{
+	if (TileMap::triggerTile(node, direction)) {
+		node->setPosition(linkTile->getPosition());
+		node->beforeMovingPosition = node->getPosition();
+		node->passedPosition = node->beforeMovingPosition;
+		node->isMoving = false;
 		return true;
 	}
 	return false;

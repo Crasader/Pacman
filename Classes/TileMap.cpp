@@ -11,6 +11,16 @@ bool TileMap::triggerTile(MovableObject * node, Direction direction)
 	);
 }
 
+bool TileMap::triggerTile(Pacman * node, Direction direction)
+{
+	return triggerTile((MovableObject*)node, direction);
+}
+
+bool TileMap::triggerTile(Ghost * node, Direction direction)
+{
+	return triggerTile((MovableObject*)node, direction);
+}
+
 void TileMap::activate(bool active)
 {
 	this->active = active;

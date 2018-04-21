@@ -11,7 +11,7 @@ class Pacman : public MovableObject
 protected:
 	Direction direction;
 	Direction nextDirection;
-	
+
 public:
 	virtual void setMap(MapController* mapController);
 	virtual void setDirection(Direction direction);

@@ -42,9 +42,6 @@
     <ClCompile Include="..\Classes\TileMap.cpp">
       <Filter>src\Core\Map</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\TeleportTile.cpp">
-      <Filter>src\Core\Map</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\MapController.cpp">
       <Filter>src\Core\Map</Filter>
     </ClCompile>
@@ -67,6 +64,9 @@
       <Filter>src\Core\Map</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\TileTeleport.cpp">
+      <Filter>src\Core\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileBase.cpp">
       <Filter>src\Core\Map</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,9 +95,6 @@
     <ClInclude Include="..\Classes\MapController.h">
       <Filter>src\Core\Map</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\TeleportTile.h">
-      <Filter>src\Core\Map</Filter>
-    </ClInclude>
     <ClInclude Include="..\Classes\StaticObject.h">
       <Filter>src\Core\Object</Filter>
     </ClInclude>
@@ -117,6 +114,9 @@
       <Filter>src\Core\Map</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\TileTeleport.h">
+      <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileBase.h">
       <Filter>src\Core\Map</Filter>
     </ClInclude>
   </ItemGroup>

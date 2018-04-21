@@ -2,7 +2,7 @@
 #include "MapController.h"
 
 
-bool TileFood::triggerTile(MovableObject * node, Direction direction)
+bool TileFood::triggerTile(Pacman * node, Direction direction)
 {
 	if (TileMap::triggerTile(node, direction)) {
 		mapController->reduceFoodCount();
