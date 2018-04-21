@@ -2,10 +2,9 @@
 #include "MapController.h"
 
 
-bool TileFood::triggerTile(Node * node, Direction direction)
+bool TileFood::triggerTile(MovableObject * node, Direction direction)
 {
 	if (TileMap::triggerTile(node, direction)) {
-		//mapController->removeChild(this, true);
 		mapController->reduceFoodCount();
 		this->sprite->setColor(Color3B(0, 0, 0));
 		this->activate(false);
@@ -14,8 +13,9 @@ bool TileFood::triggerTile(Node * node, Direction direction)
 	return false;
 }
 
-TileFood::TileFood()
+TileFood::TileFood() : TileMap()
 {
+	this->active = true;
 }
 
 

@@ -2,7 +2,7 @@
 
 
 
-TileBlock::TileBlock()
+TileBlock::TileBlock() : TileMap()
 {
 }
 

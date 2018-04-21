@@ -57,7 +57,7 @@ TileBlock * MapController::createTileBlock(int col, int row)
 	return instance;
 }
 
-TileMap * MapController::createTileFree(int col, int row)
+TileBlock * MapController::createTileFree(int col, int row)
 {
 	auto instance = TileBlock::create();
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
@@ -69,6 +69,12 @@ Vec2 MapController::getBlockOrigin()
 	return Vec2(blockSize / 2.0f, -blockSize / 2.0f);
 }
 
+void MapController::changeGhostForm(GhostForm form)
+{
+	for each(Ghost* ghost in ghosts) {
+		ghost->changeForm(form);
+	}
+}
 
 //-------------------- CORE FUNCTION (PUBLIC) ---------------------------- //
 
@@ -91,45 +97,46 @@ void MapController::parseMap()
 {
 	TileTeleport* temp = nullptr;
 	for (int i = 0; i < map.size(); i++) {
-		std::vector<TileMap*> line;
-		for (int j = 0; j < map[i].size(); j++) {
-			char item = map[i][j];
+		Vector<TileMap*> line;
+		for (int j = 0; j < map.at(i).size(); j++) {
+			char item = map.at(i).at(j);
 			if (item == '+' || item == '=' || item == '-' ||
 				item == '|' || item == ':' || item == 'X') {
 				auto block = createTileBlock(j, i);
 				this->addChild(block);
-				line.push_back(block);
+				line.pushBack(block);
 			}
 			else if (item == 'T') {
 				if (temp == nullptr) {
 					temp = createTileTeleport(j, i, Direction::Left);
 					this->addChild(temp);
-					line.push_back(temp);
+					line.pushBack(temp);
 				}
 				else {
 					auto tile = createTileTeleport(j, i, Direction::Right);
 					tile->linkTwoSide(temp);
 					this->addChild(tile);
-					line.push_back(tile);
+					line.pushBack(tile);
 				}
 			}
 			else if (item == 'E') {
 				auto enemy = createGhost(j, i);
 				this->addChild(enemy);
-				line.push_back(createTileFree(j, i));
+				ghosts.pushBack(enemy);
+				line.pushBack(createTileFree(j, i));
 			}
 			else if (item == '1') {
 				player = createPacman(j, i);
 				this->addChild(player);
-				line.push_back(createTileFree(j, i));
+				line.pushBack(createTileFree(j, i));
 			}
 			else if (item == '9') {
 				auto tileFood = createTileFood(j, i);
 				this->addChild(tileFood);
-				line.push_back(tileFood);
+				line.pushBack(tileFood);
 			}
 			else {
-				line.push_back(createTileFree(j, i));
+				line.pushBack(createTileFree(j, i));
 			}
 		}
 		mapObject.push_back(line);
@@ -142,7 +149,7 @@ bool MapController::isWalkable(Vec2 position)
 {
 	int row = (int)(-position.y / blockSize);
 	int col = (int)(position.x / blockSize);
-	char item = map[row][col];
+	char item = map.at(row).at(col);
 	if (item == '+' || item == '=' || item == '-' ||
 		item == '|' || item == ':' || item == 'X' ||
 		item == 'U') {
@@ -151,17 +158,28 @@ bool MapController::isWalkable(Vec2 position)
 	return true;
 }
 
+bool MapController::isPositionValid(Vec2 position)
+{
+	Vec2 topLeft = mapObject.at(0).at(0)->getPosition();
+	Vec2 bottomRight = mapObject.at(mapObject.size() - 1).at(mapObject.at(mapObject.size() - 1).size() - 1)->getPosition();
+	if (position.x < topLeft.x || position.x > bottomRight.x ||
+		position.y > topLeft.y || position.y < bottomRight.y) {
+		return false;
+	}
+	return true;
+}
+
 char MapController::positionToChar(Vec2 position) {
 	int row = (int)(-position.y / blockSize);
 	int col = (int)(position.x / blockSize);
-	return map[row][col];
+	return map.at(row).at(col);
 }
 
 TileMap * MapController::positionToObject(Vec2 position)
 {
 	int row = (int)(-position.y / blockSize);
 	int col = (int)(position.x / blockSize);
-	return this->mapObject[row][col];
+	return this->mapObject.at(row).at(col);
 }
 
 Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
@@ -179,7 +197,7 @@ Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
 
 	float minDistance = std::numeric_limits<float>::max();
 	for (int i = 0; i < 4; i++) {
-		if (isWalkable(posArray[i]) && posArray[i] != passedPosition) {
+		if (isPositionValid(posArray[i]) && isWalkable(posArray[i]) && posArray[i] != passedPosition) {
 			float distance = posArray[i].distance(desPos);
 			if (minDistance > distance) {
 				minDistance = distance;
@@ -188,12 +206,32 @@ Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
 		}
 	}
 	return min;
-	return Vec2();
 }
 
-Vec2 MapController::getNearestPosition(Vec2 source)
+Vec2 MapController::getFurthestPositionIgnore(Vec2 source, Vec2 passedPosition)
 {
-	return getNearestPosition(source, player->getPosition());
+	Vec2 pos = source;
+	Vec2 desPos = player->getPosition();
+	Vec2 max = pos;
+	Vec2 posArray[4] = {
+		pos + Vec2(0, blockSize),
+		pos + Vec2(0, -blockSize),
+		pos + Vec2(-blockSize, 0),
+		pos + Vec2(blockSize, 0)
+	};
+	std::random_shuffle(std::begin(posArray), std::end(posArray));
+
+	float maxDistance = -1;
+	for (int i = 0; i < 4; i++) {
+		if (isPositionValid(posArray[i]) && isWalkable(posArray[i]) && posArray[i] != passedPosition) {
+			float distance = posArray[i].distance(desPos);
+			if (maxDistance < distance) {
+				maxDistance = distance;
+				max = posArray[i];
+			}
+		}
+	}
+	return max;
 }
 
 Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des)
@@ -221,17 +259,17 @@ Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des)
 	return min;
 }
 
-bool MapController::isWin()
-{
-	return foodCount <= 0;
-}
-
 void MapController::reduceFoodCount()
 {
 	foodCount--;
 	if (isWin()) {
 		/*WIN*/
 	}
+}
+
+bool MapController::isWin()
+{
+	return foodCount <= 0;
 }
 
 bool MapController::isReady()

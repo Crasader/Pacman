@@ -1,8 +1,8 @@
 #include "TileMap.h"
+#include "MovableObject.h"
 
 
-
-bool TileMap::triggerTile(Node * node, Direction direction)
+bool TileMap::triggerTile(MovableObject * node, Direction direction)
 {
 	return (
 		this->active &&
@@ -19,7 +19,7 @@ void TileMap::activate(bool active)
 TileMap::TileMap()
 {
 	this->triggerDirection = Direction::Null;
-	this->active = true;
+	this->active = false;
 }
 
 

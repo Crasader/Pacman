@@ -18,8 +18,9 @@ protected:
 public:
 	int blockSize;
 	std::vector<std::vector<char>> map;
-	std::vector<std::vector<TileMap*>> mapObject;
+	std::vector<Vector<TileMap*>> mapObject;
 	Pacman* player;
+	Vector<Ghost*> ghosts;
 
 protected:
 	Pacman* createPacman(int col, int row);
@@ -27,9 +28,12 @@ protected:
 	TileTeleport* createTileTeleport(int col, int row, Direction dir);
 	TileFood* createTileFood(int col, int row);
 	TileBlock* createTileBlock(int col, int row);
-	TileMap* createTileFree(int col, int row);
+	TileBlock* createTileFree(int col, int row);
 	Vec2 getBlockOrigin();
 	
+public: /* Các hàm tính năng trong ingame */
+	virtual void changeGhostForm(GhostForm form);
+
 public:
 	CREATE_FUNC(MapController);
 
@@ -54,13 +58,15 @@ public:
 	  */
 	virtual bool isWalkable(Vec2 position); 
 
+	virtual bool isPositionValid(Vec2 position);
+
 	virtual char positionToChar(Vec2 position);
 
 	virtual TileMap* positionToObject(Vec2 position);
 
 	virtual Vec2 getNearestPositionIgnore(Vec2 source, Vec2 passedPosition);
 
-	virtual Vec2 getNearestPosition(Vec2 source);
+	virtual Vec2 getFurthestPositionIgnore(Vec2 source, Vec2 passedPosition);
 
 	virtual Vec2 getNearestPosition(Vec2 source, Vec2 des);
 

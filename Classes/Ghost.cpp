@@ -17,20 +17,24 @@ void Ghost::move(float deltaTime)
 		return;
 	}
 
-	if (mapController->positionToChar(beforeMovingPosition) == 'T') {
-		if (mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction)) {
-			beforeMovingPosition = this->getPosition();
-			passedPosition = beforeMovingPosition;
-			isMoving = false;
-			return;
-		};
+	if (mapController->positionToChar(beforeMovingPosition) == 'T' &&
+		mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction)) {
+		passedPosition = beforeMovingPosition;
+		isMoving = false;
 	}
 
 	if (!isMoving) {
-		passedPosition = beforeMovingPosition;
-		beforeMovingPosition = this->getPosition();
-		destination = getNearestPoint();
+		if (!isChanging) {
+			passedPosition = beforeMovingPosition;
+			beforeMovingPosition = this->getPosition();
+		}
+		else {
+			beforeMovingPosition = this->getPosition();
+			passedPosition = beforeMovingPosition;
+		}
+		destination = getDestination();
 		isMoving = true;
+		isChanging = false;
 	}
 	else {
 		Vec2 dir = (destination - beforeMovingPosition).getNormalized();
@@ -56,15 +60,39 @@ Vec2 Ghost::getNearestPoint()
 	return mapController->getNearestPositionIgnore(beforeMovingPosition, passedPosition);
 }
 
+Vec2 Ghost::getFurthestPoint() {
+	return mapController->getFurthestPositionIgnore(beforeMovingPosition, passedPosition);
+}
+
+void Ghost::changeForm(GhostForm form)
+{
+	this->form = form;
+	this->isChanging = true;
+}
+
+Vec2 Ghost::getDestination()
+{
+	switch (form) {
+	case GhostForm::Bad:
+		return getNearestPoint();
+		
+	case GhostForm::Good:
+		return getFurthestPoint();
+
+	case GhostForm::Eaten:
+		break;
+	}
+}
+
 void Ghost::update(float deltaTime)
 {
 	move(deltaTime);
-}
+} 
 
 Ghost::Ghost()
 {
+	this->form = GhostForm::Bad;
 }
-
 
 Ghost::~Ghost()
 {

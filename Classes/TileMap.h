@@ -2,6 +2,7 @@
 #include "StaticObject.h"
 #include "cocos2d.h"
 #include "Enum.h"
+#include "MovableObject.h"
 
 USING_NS_CC;
 
@@ -15,7 +16,7 @@ public:
 	Direction triggerDirection;
 public:
 	CREATE_FUNC(TileMap);
-	virtual bool triggerTile(Node* node, Direction direction);
+	virtual bool triggerTile(MovableObject* node, Direction direction);
 	virtual void activate(bool active);
 public:
 	TileMap();

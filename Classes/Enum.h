@@ -7,3 +7,9 @@ enum class Direction {
 	Down = 2,
 	Left = 3
 };
+
+enum class GhostForm {
+	Good,
+	Bad,
+	Eaten,
+};

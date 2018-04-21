@@ -6,7 +6,7 @@ USING_NS_CC;
 class TileFood : public TileMap
 {
 public:
-	virtual bool triggerTile(Node * node, Direction direction);
+	virtual bool triggerTile(MovableObject * node, Direction direction);
 	
 public:
 	CREATE_FUNC(TileFood);

@@ -13,16 +13,7 @@ void Pacman::setDirection(Direction direction)
 
 void Pacman::move(float deltaTime)
 {
-	if (!isReady()) {
-		return;
-	}
-
-	if (mapController->positionToChar(beforeMovingPosition) == 'T') {
-		if (mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction)) {
-			beforeMovingPosition = this->getPosition();
-			return;
-		};
-	}
+	if (!isReady()) { return; }
 
 	auto destination = this->beforeMovingPosition + this->directionToOffset(this->direction) * mapController->blockSize;
 	if (mapController->isWalkable(destination)) {
@@ -42,10 +33,7 @@ void Pacman::move(float deltaTime)
 			if (mapController->isWalkable(newDestination)) {
 				this->direction = this->nextDirection;
 			}
-
-			if (mapController->positionToChar(beforeMovingPosition) == '9') {
-				mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction);
-			}
+			mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction);
 		}
 	}
 	else if (this->direction != this->nextDirection) {
@@ -69,6 +57,12 @@ bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText, MapCont
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW) {
 			this->setDirection(Direction::Right);
+		} 
+		else if (keyCode == EventKeyboard::KeyCode::KEY_1) {
+			mapController->changeGhostForm(GhostForm::Good);
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_2) {
+			mapController->changeGhostForm(GhostForm::Bad);
 		}
 	};
 	this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);
