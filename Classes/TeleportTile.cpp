@@ -2,7 +2,7 @@
 
 
 
-bool TeleportTile::trigger(MovableObject::Direction direction, Node* object)
+bool TeleportTile::trigger(Direction direction, Node* object)
 {
 	if (this->triggerDirection == direction) {
 		object->setPosition(linkTile->getPosition());

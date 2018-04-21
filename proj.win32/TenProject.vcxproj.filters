@@ -16,6 +16,12 @@
     <Filter Include="src\Scene">
       <UniqueIdentifier>{a4d51ed6-4180-4009-b418-fd88d47ca7c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Core\Map">
+      <UniqueIdentifier>{6e679475-460a-41d2-85f5-9787650ac997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Core\Object">
+      <UniqueIdentifier>{3a486351-eb76-4758-8b41-3003895845a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -33,23 +39,35 @@
     <ClCompile Include="..\Classes\PlayScene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\StaticObject.cpp">
-      <Filter>src\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MapController.cpp">
-      <Filter>src\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\MovableObject.cpp">
-      <Filter>src\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Pacman.cpp">
-      <Filter>src\Core</Filter>
+    <ClCompile Include="..\Classes\TileMap.cpp">
+      <Filter>src\Core\Map</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\TeleportTile.cpp">
-      <Filter>src\Core</Filter>
+      <Filter>src\Core\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MapController.cpp">
+      <Filter>src\Core\Map</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\Ghost.cpp">
-      <Filter>src\Core</Filter>
+      <Filter>src\Core\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\MovableObject.cpp">
+      <Filter>src\Core\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Pacman.cpp">
+      <Filter>src\Core\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\StaticObject.cpp">
+      <Filter>src\Core\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileFood.cpp">
+      <Filter>src\Core\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileBlock.cpp">
+      <Filter>src\Core\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileTeleport.cpp">
+      <Filter>src\Core\Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,23 +86,38 @@
     <ClInclude Include="..\Classes\PlayScene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\StaticObject.h">
-      <Filter>src\Core</Filter>
+    <ClInclude Include="..\Classes\Enum.h">
+      <Filter>src\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileMap.h">
+      <Filter>src\Core\Map</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\MapController.h">
-      <Filter>src\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\MovableObject.h">
-      <Filter>src\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\Pacman.h">
-      <Filter>src\Core</Filter>
+      <Filter>src\Core\Map</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\TeleportTile.h">
-      <Filter>src\Core</Filter>
+      <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\StaticObject.h">
+      <Filter>src\Core\Object</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\Ghost.h">
-      <Filter>src\Core</Filter>
+      <Filter>src\Core\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\MovableObject.h">
+      <Filter>src\Core\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Pacman.h">
+      <Filter>src\Core\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileFood.h">
+      <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileBlock.h">
+      <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileTeleport.h">
+      <Filter>src\Core\Map</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

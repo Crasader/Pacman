@@ -8,10 +8,10 @@ class TeleportTile : public StaticObject
 {
 public:
 	TeleportTile* linkTile;
-	MovableObject::Direction triggerDirection;
+	Direction triggerDirection;
 public:
 	CREATE_FUNC(TeleportTile);
-	bool trigger(MovableObject::Direction direction, Node* object);
+	bool trigger(Direction direction, Node* object);
 
 	void linkTwoSide(TeleportTile* other);
 	void linkOneSide(TeleportTile* other);

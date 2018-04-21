@@ -1,6 +1,5 @@
 #include "Ghost.h"
 #include "MapController.h"
-#include "TeleportTile.h"
 
 void Ghost::setTarget(StaticObject * target)
 {
@@ -14,12 +13,12 @@ void Ghost::setMapController(MapController * mapController)
 
 void Ghost::move(float deltaTime)
 {
-	if (target == nullptr) {
+	if (target == nullptr || !isReady()) {
 		return;
 	}
 
 	if (mapController->positionToChar(beforeMovingPosition) == 'T') {
-		if ((((TeleportTile*)(mapController->positionToObject(beforeMovingPosition)))->trigger(this->direction, this))) {
+		if (mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction)) {
 			beforeMovingPosition = this->getPosition();
 			passedPosition = beforeMovingPosition;
 			isMoving = false;

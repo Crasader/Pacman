@@ -14,7 +14,6 @@ protected:
 public: 
 	Direction direction;
 	StaticObject* target;
-	MapController* mapController;
 public:
 	CREATE_FUNC(Ghost);
 	virtual void setTarget(StaticObject* target);

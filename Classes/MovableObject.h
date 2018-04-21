@@ -2,13 +2,11 @@
 
 #include "cocos2d.h"
 #include "StaticObject.h"
+#include "Enum.h"
 USING_NS_CC;
 
 class MovableObject : public StaticObject
 {
-public:
-	enum class Direction { Up = 0, Down = 1, Left = 2, Right = 3 };
-
 public:
 	float speed = 25;
 	Vec2 beforeMovingPosition;

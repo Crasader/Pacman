@@ -2,22 +2,33 @@
 
 #include "cocos2d.h"
 #include "Pacman.h"
+#include "Ghost.h"
+#include "TileTeleport.h"
+#include "TileFood.h"
+#include "TileBlock.h"
 
 USING_NS_CC;
 
 class MapController : public Node
 {
 protected:
-	float minX;
-	float maxX;
-	float minY;
-	float maxY;
+	int foodCount = 0;
+	bool ready;
 
 public:
 	int blockSize;
 	std::vector<std::vector<char>> map;
-	std::vector<std::vector<StaticObject*>> mapObject;
+	std::vector<std::vector<TileMap*>> mapObject;
 	Pacman* player;
+
+protected:
+	Pacman* createPacman(int col, int row);
+	Ghost* createGhost(int col, int row);
+	TileTeleport* createTileTeleport(int col, int row, Direction dir);
+	TileFood* createTileFood(int col, int row);
+	TileBlock* createTileBlock(int col, int row);
+	TileMap* createTileFree(int col, int row);
+	Vec2 getBlockOrigin();
 	
 public:
 	CREATE_FUNC(MapController);
@@ -45,20 +56,19 @@ public:
 
 	virtual char positionToChar(Vec2 position);
 
-	virtual StaticObject* positionToObject(Vec2 position);
-
-	virtual bool isPositionValid(Vec2 position);
+	virtual TileMap* positionToObject(Vec2 position);
 
 	virtual Vec2 getNearestPositionIgnore(Vec2 source, Vec2 passedPosition);
 
 	virtual Vec2 getNearestPosition(Vec2 source);
 
-	virtual Vec2 getNearestPosition(StaticObject* source);
-	
-	virtual Vec2 getNearestPosition(StaticObject* source, StaticObject* des);
-
 	virtual Vec2 getNearestPosition(Vec2 source, Vec2 des);
 
+	virtual void reduceFoodCount();
+
+	virtual bool isWin();
+
+	virtual bool isReady();
 public:
 	MapController();
 	~MapController();

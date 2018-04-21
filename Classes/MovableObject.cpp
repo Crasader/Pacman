@@ -45,7 +45,7 @@ Vec2 MovableObject::directionToOffset(Direction direction)
 	return offset;
 }
 
-MovableObject::Direction MovableObject::offsetToDirection(Vec2 offset)
+Direction MovableObject::offsetToDirection(Vec2 offset)
 {
 	if (offset.x > 0) return Direction::Right;
 	if (offset.x < 0) return Direction::Left;

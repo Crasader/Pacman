@@ -1,10 +1,79 @@
 #include "MapController.h"
-#include "TeleportTile.h"
 #include "Ghost.h"
+#include "TileFood.h"
+
+//------------------- CREATE OBJECT FUNCTION (PROTECTED) ----------------------- //
+
+Pacman * MapController::createPacman(int col, int row)
+{
+	Pacman* instance = Pacman::create();
+	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->sprite->setContentSize(Size(blockSize, blockSize));
+	instance->sprite->setColor(Color3B(255, 100, 100));
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->beforeMovingPosition = instance->getPosition();
+	instance->setSpeed(100);
+	instance->setZOrder(2);
+	return instance;
+}
+
+Ghost * MapController::createGhost(int col, int row)
+{
+	Ghost* instance = Ghost::create();
+	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->sprite->setContentSize(Size(blockSize, blockSize));
+	instance->sprite->setColor(Color3B(100, 100, 100));
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->beforeMovingPosition = instance->getPosition();
+	instance->setSpeed(100);
+	instance->setZOrder(2);
+	return instance;
+}
+
+TileTeleport * MapController::createTileTeleport(int col, int row, Direction dir)
+{
+	TileTeleport* instance = TileTeleport::create();
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->triggerDirection = dir;
+	return instance;
+}
+
+TileFood * MapController::createTileFood(int col, int row)
+{
+	auto instance = TileFood::create();
+	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->sprite->setColor(Color3B(0, 100, 200));
+	instance->sprite->setContentSize(Size(blockSize, blockSize));
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	return instance;
+}
+
+TileBlock * MapController::createTileBlock(int col, int row)
+{
+	auto instance = TileBlock::create();
+	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->sprite->setContentSize(Size(blockSize, blockSize));
+	return instance;
+}
+
+TileMap * MapController::createTileFree(int col, int row)
+{
+	auto instance = TileBlock::create();
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	return instance;
+}
+
+Vec2 MapController::getBlockOrigin()
+{
+	return Vec2(blockSize / 2.0f, -blockSize / 2.0f);
+}
+
+
+//-------------------- CORE FUNCTION (PUBLIC) ---------------------------- //
 
 void MapController::loadFile(std::string fileName)
 {
-	this->blockSize = 16;
 	Data data = FileUtils::getInstance()->getDataFromFile(fileName);
 	char* pBuffer = (char*)data.getBytes();
 	std::stringstream ss(pBuffer);
@@ -20,75 +89,53 @@ void MapController::loadFile(std::string fileName)
 
 void MapController::parseMap()
 {
-	Vec2 blockOrigin = Vec2(blockSize / 2, -blockSize / 2);
-	TeleportTile* temp = nullptr;
+	TileTeleport* temp = nullptr;
 	for (int i = 0; i < map.size(); i++) {
-		std::vector<StaticObject*> line;
+		std::vector<TileMap*> line;
 		for (int j = 0; j < map[i].size(); j++) {
 			char item = map[i][j];
 			if (item == '+' || item == '=' || item == '-' ||
 				item == '|' || item == ':' || item == 'X') {
-				StaticObject* wall = StaticObject::create();
-				wall->initialize(Sprite::create("block.png"), std::to_string(i) + "_" + std::to_string(j));
-				wall->setPosition(blockOrigin + Vec2(blockSize * j, -blockSize * i));
-				wall->sprite->setContentSize(Size(blockSize, blockSize));
-				wall->enableLabel(false);
-				this->addChild(wall);
-				line.push_back(wall);
+				auto block = createTileBlock(j, i);
+				this->addChild(block);
+				line.push_back(block);
 			}
 			else if (item == 'T') {
 				if (temp == nullptr) {
-					temp = TeleportTile::create();
-					temp->setPosition(blockOrigin + Vec2(blockSize * j, -blockSize * i));
+					temp = createTileTeleport(j, i, Direction::Left);
 					this->addChild(temp);
-					temp->triggerDirection = MovableObject::Direction::Left;
 					line.push_back(temp);
 				}
 				else {
-					TeleportTile* tile = TeleportTile::create();
-					tile->setPosition(blockOrigin + Vec2(blockSize * j, -blockSize * i));
-					this->addChild(tile);
-					tile->triggerDirection = MovableObject::Direction::Right;
+					auto tile = createTileTeleport(j, i, Direction::Right);
 					tile->linkTwoSide(temp);
+					this->addChild(tile);
 					line.push_back(tile);
 				}
 			}
 			else if (item == 'E') {
-				auto enemy = Ghost::create();
-				enemy->initialize(Sprite::create("block.png"), std::to_string(i) + "_" + std::to_string(j));
-				enemy->sprite->setColor(Color3B(200, 100, 200));
-				enemy->sprite->setContentSize(Size(blockSize, blockSize));
-				enemy->setPosition(blockOrigin + Vec2(blockSize * j, -blockSize * i));
-				enemy->beforeMovingPosition = enemy->getPosition();
-				enemy->setSpeed(100); // Set player speed
-				enemy->setMapController(this); // Set player mapController
-				//enemy->setTarget(player);
+				auto enemy = createGhost(j, i);
 				this->addChild(enemy);
+				line.push_back(createTileFree(j, i));
 			}
 			else if (item == '1') {
-				player = Pacman::create();
-				player->initialize(Sprite::create("block.png"), std::to_string(i) + "_" + std::to_string(j));
-				player->sprite->setColor(Color3B(100, 100, 100));
-				player->sprite->setContentSize(Size(blockSize, blockSize));
-				player->setPosition(blockOrigin + Vec2(blockSize * j, -blockSize * i));
-				player->beforeMovingPosition = player->getPosition();
-				player->setSpeed(100); // Set player speed
-				player->setMap(this); // Set player mapController
+				player = createPacman(j, i);
 				this->addChild(player);
-				line.push_back(player);
+				line.push_back(createTileFree(j, i));
+			}
+			else if (item == '9') {
+				auto tileFood = createTileFood(j, i);
+				this->addChild(tileFood);
+				line.push_back(tileFood);
 			}
 			else {
-				line.push_back(nullptr);
+				line.push_back(createTileFree(j, i));
 			}
 		}
 		mapObject.push_back(line);
 	}
 
-	StaticObject* lastObject = mapObject[mapObject.size() - 1][mapObject[mapObject.size() - 1].size() - 1];
-	minX = 0;
-	maxY = 0;
-	maxX = (map.size() - 1) * blockSize;
-	minY = (map[0].size() -1) * blockSize;
+	this->ready = true;
 }
 
 bool MapController::isWalkable(Vec2 position)
@@ -110,19 +157,11 @@ char MapController::positionToChar(Vec2 position) {
 	return map[row][col];
 }
 
-StaticObject * MapController::positionToObject(Vec2 position)
+TileMap * MapController::positionToObject(Vec2 position)
 {
 	int row = (int)(-position.y / blockSize);
 	int col = (int)(position.x / blockSize);
-	return mapObject[row][col];
-}
-
-bool MapController::isPositionValid(Vec2 position)
-{
-	if (position.x < minX || position.x > maxX || position.y < minY || position.y > maxY) {
-		return false;
-	}
-	return true;
+	return this->mapObject[row][col];
 }
 
 Vec2 MapController::getNearestPositionIgnore(Vec2 source, Vec2 passedPosition)
@@ -157,16 +196,6 @@ Vec2 MapController::getNearestPosition(Vec2 source)
 	return getNearestPosition(source, player->getPosition());
 }
 
-Vec2 MapController::getNearestPosition(StaticObject * source)
-{
-	return getNearestPosition(source, player);
-}
-
-Vec2 MapController::getNearestPosition(StaticObject * source, StaticObject * des)
-{
-	return getNearestPosition(source->getPosition(), des->getPosition());
-}
-
 Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des)
 {
 	Vec2 pos = source;
@@ -192,10 +221,29 @@ Vec2 MapController::getNearestPosition(Vec2 source, Vec2 des)
 	return min;
 }
 
-MapController::MapController()
+bool MapController::isWin()
 {
+	return foodCount <= 0;
 }
 
+void MapController::reduceFoodCount()
+{
+	foodCount--;
+	if (isWin()) {
+		/*WIN*/
+	}
+}
+
+bool MapController::isReady()
+{
+ 	return ready;
+}
+
+MapController::MapController()
+{
+	this->blockSize = 16;
+	this->ready = false;
+}
 
 MapController::~MapController()
 {

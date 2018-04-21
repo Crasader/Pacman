@@ -1,6 +1,5 @@
 #include "Pacman.h"
 #include "MapController.h"
-#include "TeleportTile.h"
 
 void Pacman::setMap(MapController* mapController)
 {
@@ -14,8 +13,12 @@ void Pacman::setDirection(Direction direction)
 
 void Pacman::move(float deltaTime)
 {
+	if (!isReady()) {
+		return;
+	}
+
 	if (mapController->positionToChar(beforeMovingPosition) == 'T') {
-		if ((((TeleportTile*)(mapController->positionToObject(beforeMovingPosition)))->trigger(this->direction, this))) {
+		if (mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction)) {
 			beforeMovingPosition = this->getPosition();
 			return;
 		};
@@ -34,12 +37,14 @@ void Pacman::move(float deltaTime)
 		}
 		else {
 			this->setPosition(destination);
-			
 			this->beforeMovingPosition = this->getPosition();
-
 			auto newDestination = destination + this->directionToOffset(this->nextDirection) * mapController->blockSize;
 			if (mapController->isWalkable(newDestination)) {
 				this->direction = this->nextDirection;
+			}
+
+			if (mapController->positionToChar(beforeMovingPosition) == '9') {
+				mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction);
 			}
 		}
 	}
@@ -49,7 +54,7 @@ void Pacman::move(float deltaTime)
 	}
 }
 
-bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText)
+bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText, MapController* mapController)
 {
 	EventListenerKeyboard* keyboardListener = EventListenerKeyboard::create();
 	keyboardListener->onKeyPressed = [=](EventKeyboard::KeyCode keyCode, Event* event) {
@@ -68,7 +73,7 @@ bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText)
 	};
 	this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);
 	this->direction = this->nextDirection = Direction::Right;
-	return MovableObject::initialize(sprite, labelText);
+	return MovableObject::initialize(sprite, labelText, mapController);
 }
 
 void Pacman::update(float deltaTime)

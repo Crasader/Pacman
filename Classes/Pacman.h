@@ -9,7 +9,6 @@ class MapController; // forward derclaration
 class Pacman : public MovableObject
 {
 protected:
-	MapController* mapController;
 	Direction direction;
 	Direction nextDirection;
 	
@@ -17,7 +16,7 @@ public:
 	virtual void setMap(MapController* mapController);
 	virtual void setDirection(Direction direction);
 	virtual void move(float deltaTime);
-	virtual bool initialize(cocos2d::Sprite * sprite, std::string labelText);
+	virtual bool initialize(cocos2d::Sprite * sprite, std::string labelText, MapController* mapController);
 
 public:
 	CREATE_FUNC(Pacman);
