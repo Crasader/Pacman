@@ -43,6 +43,30 @@ bool StaticObject::isReady()
 	return mapController != nullptr && mapController->isReady();
 }
 
+Animate * StaticObject::getAnimate(std::initializer_list<std::string> frameNames, float delayTime)
+{
+	Vector<SpriteFrame*> frames;
+	SpriteFrameCache* cache = SpriteFrameCache::getInstance();
+	for each (std::string name in frameNames) {
+		SpriteFrame* frame = cache->getSpriteFrameByName(name);
+		if (frame != nullptr) {
+			frames.pushBack(frame);
+		}
+	}
+	Animation* animation = Animation::createWithSpriteFrames(frames, delayTime);
+	Animate* animate = Animate::create(animation);
+	return animate;
+}
+
+void StaticObject::setAnimate(Animate * animate)
+{
+	if (this->sprite != nullptr && animate != nullptr && animate != currentAnimate) {
+		this->sprite->stopAllActions();
+		this->sprite->runAction(RepeatForever::create(animate));
+		this->currentAnimate = animate;
+	}
+}
+
 StaticObject::StaticObject()
 {
 }

@@ -7,7 +7,7 @@
 #include "TileFood.h"
 #include "TileBlock.h"
 #include "TileBase.h"
-
+#include "TileBigFood.h"
 USING_NS_CC;
 
 class MapController : public Node
@@ -15,6 +15,7 @@ class MapController : public Node
 protected:
 	int foodCount = 0;
 	bool ready;
+	Sprite* face;
 
 public:
 	int blockSize;
@@ -30,9 +31,11 @@ protected:
 	Ghost* createGhost(int col, int row);
 	TileTeleport* createTileTeleport(int col, int row, Direction dir);
 	TileFood* createTileFood(int col, int row);
+	TileBigFood* createTileBigFood(int col, int row);
 	TileBlock* createTileBlock(int col, int row);
 	TileBlock* createTileFree(int col, int row);
 	TileBase* createTileBase(int col, int row);
+
 	Vec2 getBlockOrigin();
 	
 public: /* Các hàm tính năng trong ingame */

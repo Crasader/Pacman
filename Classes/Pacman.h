@@ -15,6 +15,7 @@ protected:
 public:
 	virtual void setMap(MapController* mapController);
 	virtual void setDirection(Direction direction);
+	virtual void confirmDirection();
 	virtual void move(float deltaTime);
 	virtual bool initialize(cocos2d::Sprite * sprite, std::string labelText, MapController* mapController);
 

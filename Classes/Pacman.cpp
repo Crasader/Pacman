@@ -12,6 +12,17 @@ void Pacman::setDirection(Direction direction)
 	this->nextDirection = direction;
 }
 
+void Pacman::confirmDirection()
+{
+	this->direction = this->nextDirection;
+	switch (direction) {
+	case Direction::Up: setAnimate(animateList.at(0)); break;
+	case Direction::Down: setAnimate(animateList.at(1)); break;
+	case Direction::Left: setAnimate(animateList.at(2)); break;
+	case Direction::Right: setAnimate(animateList.at(3)); break;
+	}
+}
+
 void Pacman::move(float deltaTime)
 {
 	if (!isReady()) { return; }
@@ -32,13 +43,13 @@ void Pacman::move(float deltaTime)
 			this->beforeMovingPosition = this->getPosition();
 			auto newDestination = destination + this->directionToOffset(this->nextDirection) * mapController->blockSize;
 			if (mapController->isWalkable(newDestination)) {
-				this->direction = this->nextDirection;
+				confirmDirection();
 			}
 			mapController->positionToObject(beforeMovingPosition)->triggerTile(this, this->direction);
 		}
 	}
 	else if (this->direction != this->nextDirection) {
-		this->direction = this->nextDirection;
+		confirmDirection();
 		move(deltaTime);
 	}
 }
@@ -71,7 +82,14 @@ bool Pacman::initialize(cocos2d::Sprite * sprite, std::string labelText, MapCont
 	};
 	this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(keyboardListener, this);
 	this->direction = this->nextDirection = Direction::Right;
-	return MovableObject::initialize(sprite, labelText, mapController);
+
+	MovableObject::initialize(sprite, labelText, mapController);
+	animateList.pushBack(getAnimate({ " (2).png", " (4).png", " (39).png" }, 0.1f)); // Up
+	animateList.pushBack(getAnimate({ " (6).png", " (8).png", " (39).png" }, 0.1f)); // Down
+	animateList.pushBack(getAnimate({ " (1).png", " (3).png", " (39).png" }, 0.1f)); // Left
+	animateList.pushBack(getAnimate({ " (5).png", " (7).png", " (39).png" }, 0.1f)); // Right
+	setAnimate(animateList.at(3));
+	return true;
 }
 
 void Pacman::update(float deltaTime)

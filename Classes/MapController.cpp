@@ -9,7 +9,7 @@ Pacman * MapController::createPacman(int col, int row)
 	Pacman* instance = Pacman::create();
 	instance->initialize(Sprite::create("block.png"), "", this);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
-	instance->sprite->setColor(Color3B(255, 100, 100));
+	instance->sprite->setScale(1.3f);
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
 	instance->beforeMovingPosition = instance->getPosition();
 	instance->setSpeed(100);
@@ -23,7 +23,7 @@ Ghost * MapController::createGhost(int col, int row)
 	Ghost* instance = Ghost::create();
 	instance->initialize(Sprite::create("block.png"), "", this);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
-	instance->sprite->setColor(Color3B(100, 100, 100));
+	instance->sprite->setScale(1.3f);
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
 	instance->beforeMovingPosition = instance->getPosition();
 	instance->setSpeed(100);
@@ -43,8 +43,18 @@ TileTeleport * MapController::createTileTeleport(int col, int row, Direction dir
 TileFood * MapController::createTileFood(int col, int row)
 {
 	auto instance = TileFood::create();
-	instance->initialize(Sprite::create("block.png"), "", this);
-	instance->sprite->setColor(Color3B(0, 100, 200));
+	instance->initialize(Sprite::createWithSpriteFrameName("(86).png"), "", this);
+	instance->sprite->setContentSize(Size(blockSize, blockSize));
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	return instance;
+}
+
+TileBigFood * MapController::createTileBigFood(int col, int row)
+{
+	auto instance = TileBigFood::create();
+	instance->initialize(Sprite::createWithSpriteFrameName("(86).png"), "", this);
+	instance->sprite->setColor(Color3B::YELLOW);
+	instance->setScale(1.3f);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
 	return instance;
@@ -53,9 +63,7 @@ TileFood * MapController::createTileFood(int col, int row)
 TileBlock * MapController::createTileBlock(int col, int row)
 {
 	auto instance = TileBlock::create();
-	instance->initialize(Sprite::create("block.png"), "", this);
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
-	instance->sprite->setContentSize(Size(blockSize, blockSize));
 	return instance;
 }
 
@@ -93,6 +101,8 @@ void MapController::changeGhostForm(GhostForm form)
 
 void MapController::loadFile(std::string fileName)
 {
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("sprites/spritesheet.plist");
+
 	Data data = FileUtils::getInstance()->getDataFromFile(fileName);
 	char* pBuffer = (char*)data.getBytes();
 	std::stringstream ss(pBuffer);
@@ -104,6 +114,19 @@ void MapController::loadFile(std::string fileName)
 		}
 		this->map.push_back(line);
 	}
+
+	
+	this->face = Sprite::create("maze3.png");
+	
+	auto oriSize = face->getContentSize();
+	float scaleX = blockSize * 28 / oriSize.width;
+	float scaleY = blockSize * 31 / oriSize.height;
+
+	this->face->setZOrder(-1);
+	this->face->setScale(scaleX, scaleY);
+	Vec2 ori = this->face->getBoundingBox().size / 2;
+	this->face->setPosition(Vec2(ori.x + blockSize, -ori.y));
+	this->addChild(this->face);
 }
 
 void MapController::parseMap()
@@ -147,6 +170,11 @@ void MapController::parseMap()
 				auto tileFood = createTileFood(j, i);
 				this->addChild(tileFood);
 				line.pushBack(tileFood);
+			}
+			else if (item == '5') {
+				auto tileBigFood = createTileBigFood(j, i);
+				this->addChild(tileBigFood);
+				line.pushBack(tileBigFood);
 			}
 			else if (item == 'B') {
 				this->base = createTileBase(j, i);

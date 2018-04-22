@@ -14,6 +14,10 @@ public:
 	MapController* mapController;
 
 public:
+	Animate* currentAnimate;
+	Vector<Animate*> animateList;
+
+public:
 	CREATE_FUNC(StaticObject);
 	virtual bool initialize(cocos2d::Sprite* sprite);
 	virtual bool initialize(cocos2d::Sprite* sprite, std::string labelText);
@@ -22,6 +26,9 @@ public:
 	virtual void setMapController(MapController* mapController);
 	virtual void enableLabel(bool enable);
 	virtual bool isReady();
+
+	virtual Animate* getAnimate(std::initializer_list<std::string> frameNames, float delayTime = 0.1f);
+	virtual void setAnimate(Animate* animate);
 public:
 	StaticObject();
 	~StaticObject();

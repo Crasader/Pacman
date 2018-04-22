@@ -18,8 +18,39 @@ void Ghost::onCheckCollision()
 	}
 }
 
-void Ghost::onNotCheckCollision()
+void Ghost::onEatenFormAction(float deltaTime)
 {
+	if (elapsedTime > 0) {
+		elapsedTime -= deltaTime;
+	}
+	else {
+		changeForm(GhostForm::Bad);
+	}
+}
+
+void Ghost::doNothing()
+{
+}
+
+bool Ghost::initialize(Sprite * sprite, std::string labelText, MapController * mapController)
+{
+	MovableObject::initialize(sprite, labelText, mapController);
+	// Bad form
+	animateList.pushBack(getAnimate({ " (27).png", " (28).png" }, 0.1f)); // RIGHT
+	animateList.pushBack(getAnimate({ " (29).png", " (30).png" }, 0.1f)); // DOWN
+	animateList.pushBack(getAnimate({ " (31).png", " (32).png" }, 0.1f)); // LEFT
+	animateList.pushBack(getAnimate({ " (33).png", " (34).png" }, 0.1f)); // UP
+
+	// Good form
+	animateList.pushBack(getAnimate({ " (11).png", " (12).png" }, 0.1f)); // NEWLY
+	animateList.pushBack(getAnimate({ " (11).png", " (12).png", " (13).png", " (14).png" }, 0.1f));  // ALMOST OVER
+
+	// Eaten form
+	animateList.pushBack(getAnimate({ " (78).png", " (79).png" }, 0.1f)); // RIGHT
+	animateList.pushBack(getAnimate({ " (80).png", " (81).png" }, 0.1f)); // DOWN
+	animateList.pushBack(getAnimate({ " (82).png", " (83).png" }, 0.1f)); // LEFT
+	animateList.pushBack(getAnimate({ " (84).png", " (85).png" }, 0.1f)); // UP
+	return true;
 }
 
 void Ghost::setTarget(StaticObject * target)
@@ -69,6 +100,7 @@ void Ghost::move(float deltaTime)
 			this->setPosition(destination);
 			this->isMoving = false;
 		}
+		confirmDirection();
 	}
 }
 
@@ -88,12 +120,19 @@ void Ghost::changeForm(GhostForm form)
 
 	switch (this->form) {
 	case GhostForm::Bad:
+		this->checkCollisionCallback = [=]() { onCheckCollision(); };
+		this->formActionCallback = [=](float t) { doNothing(); };
+		break;
+
 	case GhostForm::Good:
-		this->checkCollisionCallback = std::bind(&Ghost::onCheckCollision, this);
+		this->elapsedTime = this->goodFormTime;
+		this->checkCollisionCallback = [=]() { onCheckCollision(); };
+		this->formActionCallback = [=](float t) { onEatenFormAction(t); };
 		break;
 
 	default:
-		this->checkCollisionCallback = std::bind(&Ghost::onNotCheckCollision, this);
+		this->checkCollisionCallback = [=]() { doNothing(); };
+		this->formActionCallback = [=](float t) { doNothing(); };
 	}
 }
 
@@ -132,17 +171,43 @@ float Ghost::getSpeed()
 	}
 }
 
+void Ghost::confirmDirection()
+{
+	switch (form) {
+	case GhostForm::Bad:
+		switch (direction) {
+		case Direction::Right: setAnimate(animateList.at(0)); break;
+		case Direction::Down: setAnimate(animateList.at(1)); break;
+		case Direction::Left: setAnimate(animateList.at(2)); break;
+		case Direction::Up: setAnimate(animateList.at(3)); break;
+		}
+		break;
+	case GhostForm::Good:
+		setAnimate(animateList.at(4));
+		break;
+	case GhostForm::Eaten:
+		switch (direction) {
+		case Direction::Right: setAnimate(animateList.at(6)); break;
+		case Direction::Down: setAnimate(animateList.at(7)); break;
+		case Direction::Left: setAnimate(animateList.at(8)); break;
+		case Direction::Up: setAnimate(animateList.at(9)); break;
+		}
+		break;
+	}
+	
+}
+
 void Ghost::update(float deltaTime)
 {
 	move(deltaTime);
 	checkCollisionCallback();
+	formActionCallback(deltaTime);
 } 
 
 Ghost::Ghost()
 {
-	this->form = GhostForm::Bad;
 	this->target = nullptr;
-	this->checkCollisionCallback = std::bind(&Ghost::onCheckCollision, this);
+	changeForm(GhostForm::Bad);
 }
 
 Ghost::~Ghost()
