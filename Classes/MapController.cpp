@@ -1,6 +1,8 @@
 #include "MapController.h"
 #include "Ghost.h"
 #include "TileFood.h"
+#include "IntroScene.h"
+#include "StaticStorage.h"
 
 //------------------- CREATE OBJECT FUNCTION (PROTECTED) ----------------------- //
 
@@ -42,6 +44,7 @@ TileTeleport * MapController::createTileTeleport(int col, int row, Direction dir
 
 TileFood * MapController::createTileFood(int col, int row)
 {
+	foodCount++;
 	auto instance = TileFood::create();
 	instance->initialize(Sprite::createWithSpriteFrameName("(86).png"), "", this);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
@@ -51,6 +54,7 @@ TileFood * MapController::createTileFood(int col, int row)
 
 TileBigFood * MapController::createTileBigFood(int col, int row)
 {
+	foodCount++;
 	auto instance = TileBigFood::create();
 	instance->initialize(Sprite::createWithSpriteFrameName("(86).png"), "", this);
 	instance->sprite->setColor(Color3B::YELLOW);
@@ -116,17 +120,44 @@ void MapController::releaseGhost(float deltaTime)
 
 void MapController::respawn()
 {
-	player->respawn();
-	for (int i = 0; i < ghosts.size(); i++) {
-		ghosts.at(i)->respawn();
+	if (lifeCount > 0) {
+		player->respawn();
+		for (int i = 0; i < ghosts.size(); i++) {
+			ghosts.at(i)->respawn();
+		}
+		elapsedTime = 0;
+		ghostCount = 0;
+		wait(1.5f);
 	}
-	
-	elapsedTime = 0;
-	ghostCount = 0;
+	else { // LOSE
+		StaticStorage::stringValue = "GAME OVER\nPRESS ANY KEY TO CONTINUE";
+		this->getEventDispatcher()->removeAllEventListeners();
+		Director::getInstance()->replaceScene(IntroScene::createScene());
+	}
+	lifeCount--;
+	lifeLabel->setString(" x " + std::to_string(lifeCount));
+}
+
+void MapController::wait(float waitTime)
+{
+	this->waitTime = waitTime;
 }
 
 bool MapController::init()
 {
+	Vec2 origin = Vec2::ZERO;
+	Size visibleSize = Director::getInstance()->getVisibleSize();
+	Vec2 downRight = origin + Vec2(visibleSize.width, -visibleSize.height);
+	Vec2 center = (origin + downRight) / 2;
+
+	auto sprite = Sprite::createWithSpriteFrameName(" (7).png");
+	sprite->setPosition(Vec2(center.x - 10, downRight.y + sprite->getBoundingBox().size.height));
+	this->addChild(sprite);
+
+	this->lifeLabel = Label::createWithSystemFont(" x " + std::to_string(lifeCount), "Arial", 15);
+	lifeLabel->setPosition(Vec2(center.x + 10, downRight.y + sprite->getBoundingBox().size.height));
+	this->addChild(lifeLabel);
+
 	this->scheduleUpdate();
 	return true;
 }
@@ -135,8 +166,6 @@ bool MapController::init()
 
 void MapController::loadFile(std::string fileName)
 {
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("sprites/spritesheet.plist");
-
 	Data data = FileUtils::getInstance()->getDataFromFile(fileName);
 	char* pBuffer = (char*)data.getBytes();
 	std::stringstream ss(pBuffer);
@@ -234,10 +263,11 @@ void MapController::parseMap()
 	}
 	for (int i = 0; i < ghosts.size(); i++) {
 		ghosts.at(i)->setGhostColor(i);
-		ghosts.at(i)->setDefaultRadius(150 + 100 * i);
+		ghosts.at(i)->setDefaultRadius(250 + 100 * i);
 		ghosts.at(i)->changeForm(GhostForm::Base);
 	}
 	this->ready = true;
+	this->respawn();
 }
 
 bool MapController::isWalkable(Vec2 position, GhostForm form)
@@ -353,6 +383,9 @@ void MapController::reduceFoodCount()
 	foodCount--;
 	if (isWin()) {
 		/*WIN*/
+		StaticStorage::stringValue = "YOU WIN\nPRESS ANY KEY TO CONTINUE";
+		this->getEventDispatcher()->removeAllEventListeners();
+		Director::getInstance()->replaceScene(IntroScene::createScene());
 	}
 }
 
@@ -363,12 +396,17 @@ bool MapController::isWin()
 
 bool MapController::isReady()
 {
- 	return ready;
+ 	return ready && waitTime <= 0;
 }
 
 void MapController::update(float deltaTime)
 {
-	releaseGhost(deltaTime);
+	if (waitTime <= 0) {
+		releaseGhost(deltaTime);
+	}
+	else {
+		waitTime -= deltaTime;
+	}
 }
 
 MapController::MapController()

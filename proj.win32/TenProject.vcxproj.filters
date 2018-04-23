@@ -75,6 +75,12 @@
     <ClCompile Include="..\Classes\TileDoor.cpp">
       <Filter>src\Core\Map</Filter>
     </ClCompile>
+    <ClCompile Include="..\Classes\IntroScene.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\StaticStorage.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -130,6 +136,12 @@
     </ClInclude>
     <ClInclude Include="..\Classes\TileDoor.h">
       <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\IntroScene.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\StaticStorage.h">
+      <Filter>src\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

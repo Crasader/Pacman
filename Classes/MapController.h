@@ -16,8 +16,11 @@ class MapController : public Node
 private:
 	float elapsedTime = 0;
 	int ghostCount = 0;
+	float waitTime = 0;
+	Label* lifeLabel;
 
 protected:
+	int lifeCount = 3;
 	int foodCount = 0;
 	bool ready;
 	Sprite* face;
@@ -26,7 +29,7 @@ public:
 	int blockSize;
 	std::vector<std::vector<char>> map;
 	std::vector<Vector<TileMap*>> mapObject;
-
+	
 	Pacman* player;
 	TileBase* base;
 	TileDoor* door;
@@ -53,6 +56,8 @@ public: /* Các hàm tính năng trong ingame */
 	virtual void releaseGhost(float deltaTime);
 
 	virtual void respawn();
+
+	virtual void wait(float waitTime);
 
 public:
 	CREATE_FUNC(MapController);

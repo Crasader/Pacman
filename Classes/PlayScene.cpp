@@ -20,7 +20,7 @@ bool PlayScene::init()
 	MapController* mapController = MapController::create();
 	mapController->loadFile("pacman_map.txt");
 	mapController->parseMap();
-	mapController->setPosition(topLeft);
+	mapController->setPosition(topLeft - Vec2(mapController->blockSize, 0));
 
 	this->addChild(mapController);
 	this->scheduleUpdate();

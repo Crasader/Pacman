@@ -2,6 +2,7 @@
 #include "HelloWorldScene.h"
 #include "GameScene.h"
 #include "PlayScene.h"
+#include "IntroScene.h"
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
@@ -20,7 +21,7 @@ using namespace CocosDenshion;
 
 USING_NS_CC;
 
-static cocos2d::Size designResolutionSize = cocos2d::Size(800, 600);
+static cocos2d::Size designResolutionSize = cocos2d::Size(448, 535);
 static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
 static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
@@ -95,8 +96,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
+
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("sprites/spritesheet.plist");
+
     // create a scene. it's an autorelease object
-    auto scene = PlayScene::createScene();
+	auto scene = IntroScene::createScene();
 
     // run
     director->runWithScene(scene);

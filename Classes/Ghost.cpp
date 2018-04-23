@@ -16,6 +16,8 @@ void Ghost::onGoodFormCollision()
 	auto gBox = this->sprite->getBoundingBox();
 	if (pBox.intersectsRect(gBox)) {
 		changeForm(GhostForm::Eaten);
+		confirmDirection();
+		mapController->wait(1.0f);
 	}
 }
 
@@ -168,6 +170,7 @@ void Ghost::respawn()
 	this->beforeMovingPosition = this->getPosition();
 	this->isMoving = false;
 	this->changeForm(GhostForm::Base);
+	this->confirmDirection();
 }
 
 Vec2 Ghost::getNearestPoint()
@@ -303,6 +306,7 @@ Ghost::Ghost()
 	this->target = nullptr;
 	this->radius = -1;
 	this->defaultRadius = -1;
+	this->direction = Direction::Right;
 }
 
 Ghost::~Ghost()

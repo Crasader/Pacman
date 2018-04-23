@@ -67,6 +67,7 @@ void Pacman::respawn() {
 	this->beforeMovingPosition = this->getPosition();
 	this->setDirection(Direction::Right);
 	this->setAnimate(animateList.at(3));
+	this->confirmDirection();
 	isAlive = true;
 }
 
