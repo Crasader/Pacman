@@ -29,6 +29,7 @@ public:
 
 	virtual Animate* getAnimate(std::initializer_list<std::string> frameNames, float delayTime = 0.1f);
 	virtual void setAnimate(Animate* animate);
+	virtual void setAnimate(Animate* animate, std::function<void()> callback);
 public:
 	StaticObject();
 	~StaticObject();

@@ -161,6 +161,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="..\Classes\TileBase.cpp" />
     <ClCompile Include="..\Classes\TileBigFood.cpp" />
     <ClCompile Include="..\Classes\TileBlock.cpp" />
+    <ClCompile Include="..\Classes\TileDoor.cpp" />
     <ClCompile Include="..\Classes\TileFood.cpp" />
     <ClCompile Include="..\Classes\TileMap.cpp" />
     <ClCompile Include="..\Classes\TileTeleport.cpp" />
@@ -180,6 +181,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="..\Classes\TileBase.h" />
     <ClInclude Include="..\Classes\TileBigFood.h" />
     <ClInclude Include="..\Classes\TileBlock.h" />
+    <ClInclude Include="..\Classes\TileDoor.h" />
     <ClInclude Include="..\Classes\TileFood.h" />
     <ClInclude Include="..\Classes\TileMap.h" />
     <ClInclude Include="..\Classes\TileTeleport.h" />

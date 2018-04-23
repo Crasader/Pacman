@@ -72,6 +72,9 @@
     <ClCompile Include="..\Classes\TileBigFood.cpp">
       <Filter>src\Core\Map</Filter>
     </ClCompile>
+    <ClCompile Include="..\Classes\TileDoor.cpp">
+      <Filter>src\Core\Map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -123,6 +126,9 @@
       <Filter>src\Core\Map</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\TileBigFood.h">
+      <Filter>src\Core\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\TileDoor.h">
       <Filter>src\Core\Map</Filter>
     </ClInclude>
   </ItemGroup>

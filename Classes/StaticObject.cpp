@@ -67,6 +67,18 @@ void StaticObject::setAnimate(Animate * animate)
 	}
 }
 
+void StaticObject::setAnimate(Animate * animate, std::function<void()> callback)
+{
+	if (this->sprite != nullptr && animate != nullptr && animate != currentAnimate) {
+		this->sprite->stopAllActions();
+		auto callFunc = CallFunc::create([=]() { callback(); });
+		Sequence* seq = Sequence::create(animate, callFunc, nullptr);
+		this->sprite->runAction(seq);
+		this->currentAnimate = animate;
+		
+	}
+}
+
 StaticObject::StaticObject()
 {
 }

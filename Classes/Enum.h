@@ -12,4 +12,6 @@ enum class GhostForm {
 	Good,
 	Bad,
 	Eaten,
+	Door,
+	Base
 };

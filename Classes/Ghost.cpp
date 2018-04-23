@@ -1,7 +1,8 @@
 #include "Ghost.h"
 #include "MapController.h"
 
-void Ghost::onCheckCollision()
+
+void Ghost::onGoodFormCollision()
 {
 	if (target == nullptr || !isReady()) {
 		return;
@@ -11,10 +12,27 @@ void Ghost::onCheckCollision()
 	if (distance > mapController->blockSize) {
 		return;
 	}
-	auto pBox = player->getBoundingBox();
-	auto gBox = this->getBoundingBox();
-	if (player->getBoundingBox().intersectsRect(this->getBoundingBox())) {
+	auto pBox = player->sprite->getBoundingBox();
+	auto gBox = this->sprite->getBoundingBox();
+	if (pBox.intersectsRect(gBox)) {
 		changeForm(GhostForm::Eaten);
+	}
+}
+
+void Ghost::onBadFormCollision()
+{
+	if (target == nullptr || !isReady()) {
+		return;
+	}
+	auto player = mapController->player;
+	float distance = player->getPosition().distance(this->getPosition());
+	if (distance > mapController->blockSize) {
+		return;
+	}
+	auto pBox = player->sprite->getBoundingBox();
+	auto gBox = this->sprite->getBoundingBox();
+	if (pBox.intersectsRect(gBox)) {
+		player->die();
 	}
 }
 
@@ -24,7 +42,7 @@ void Ghost::onEatenFormAction(float deltaTime)
 		elapsedTime -= deltaTime;
 	}
 	else {
-		changeForm(GhostForm::Bad);
+		changeForm(previousForm);
 	}
 }
 
@@ -58,6 +76,46 @@ void Ghost::setTarget(StaticObject * target)
 	this->target = target;
 }
 
+void Ghost::setRadius(float radius)
+{
+	this->radius = radius;
+}
+
+void Ghost::setDefaultRadius(float radius)
+{
+	this->defaultRadius = radius;
+}
+
+void Ghost::setGhostColor(int index)
+{
+	index = (index > 3 || index < 0) ? 0 : index;
+	this->stopAllActions();
+	if (index == 0) {
+		animateList.replace(0, getAnimate({ " (27).png", " (28).png" }, 0.1f)); // RIGHT
+		animateList.replace(1, getAnimate({ " (29).png", " (30).png" }, 0.1f)); // DOWN
+		animateList.replace(2, getAnimate({ " (31).png", " (32).png" }, 0.1f)); // LEFT
+		animateList.replace(3, getAnimate({ " (33).png", " (34).png" }, 0.1f)); // UP
+	}
+	else if (index == 1) {
+		animateList.replace(0, getAnimate({ " (54).png", " (55).png" }, 0.1f)); // RIGHT
+		animateList.replace(1, getAnimate({ " (56).png", " (57).png" }, 0.1f)); // DOWN
+		animateList.replace(2, getAnimate({ " (58).png", " (59).png" }, 0.1f)); // LEFT
+		animateList.replace(3, getAnimate({ " (60).png", " (61).png" }, 0.1f)); // UP
+	}
+	else if (index == 2) {
+		animateList.replace(0, getAnimate({ " (62).png", " (63).png" }, 0.1f)); // RIGHT
+		animateList.replace(1, getAnimate({ " (64).png", " (65).png" }, 0.1f)); // DOWN
+		animateList.replace(2, getAnimate({ " (66).png", " (67).png" }, 0.1f)); // LEFT
+		animateList.replace(3, getAnimate({ " (68).png", " (69).png" }, 0.1f)); // UP
+	}
+	else {
+		animateList.replace(0, getAnimate({ " (70).png", " (71).png" }, 0.1f)); // RIGHT
+		animateList.replace(1, getAnimate({ " (72).png", " (73).png" }, 0.1f)); // DOWN
+		animateList.replace(2, getAnimate({ " (74).png", " (75).png" }, 0.1f)); // LEFT
+		animateList.replace(3, getAnimate({ " (76).png", " (77).png" }, 0.1f)); // UP
+	}
+}
+
 void Ghost::setMapController(MapController * mapController)
 {
 	this->mapController = mapController;
@@ -80,14 +138,14 @@ void Ghost::move(float deltaTime)
 			beforeMovingPosition = this->getPosition();
 			passedPosition = beforeMovingPosition;
 		}
-		destination = getDestination();
+		destination = getDestinationCallback();
 		isMoving = true;
 		isChanging = false;
 	}
 	else {
 		Vec2 dir = (destination - beforeMovingPosition).getNormalized();
 		this->direction = offsetToDirection(dir);
-		Vec2 offset = dir * getSpeed() * deltaTime;
+		Vec2 offset = dir * getSpeedCallback() * deltaTime;
 		Vec2 oldPosition = getPosition();
 		Vec2 newPosition = oldPosition + offset;
 		
@@ -104,50 +162,94 @@ void Ghost::move(float deltaTime)
 	}
 }
 
+void Ghost::respawn()
+{
+	this->setPosition(mapController->enemySpawn->getPosition());
+	this->beforeMovingPosition = this->getPosition();
+	this->isMoving = false;
+	this->changeForm(GhostForm::Base);
+}
+
 Vec2 Ghost::getNearestPoint()
 {
+	if (radius > 0 && beforeMovingPosition.distance(target->getPosition()) > radius) {
+		return getRandomPosition();
+	}
 	return mapController->getNearestPosition(beforeMovingPosition, target->getPosition(), passedPosition, form);
 }
 
 Vec2 Ghost::getFurthestPoint() {
+	if (radius > 0 && beforeMovingPosition.distance(target->getPosition()) > radius) {
+		return getRandomPosition();
+	}
 	return mapController->getFurthestPosition(beforeMovingPosition, target->getPosition(), passedPosition, form);
 }
 
-void Ghost::changeForm(GhostForm form)
+Vec2 Ghost::getRandomPosition()
 {
+	return mapController->getRandomPosition(beforeMovingPosition, passedPosition);
+}
+
+void Ghost::changeForm(GhostForm form, std::initializer_list<GhostForm> ignoreList)
+{
+	for each(GhostForm f in ignoreList) {
+		if (this->form == f) {
+			return;
+		}
+	}
+
+	if (this->form != form) {
+		this->previousForm = this->form;
+	}
 	this->form = form;
 	this->isChanging = true;
 
 	switch (this->form) {
 	case GhostForm::Bad:
-		this->checkCollisionCallback = [=]() { onCheckCollision(); };
+		setTarget(mapController->player);
+		setRadius(defaultRadius);
+		this->checkCollisionCallback = [=]() { onBadFormCollision(); };
 		this->formActionCallback = [=](float t) { doNothing(); };
+		this->getDestinationCallback = [=]() { return getNearestPoint(); };
+		this->getSpeedCallback = [=]() { return speed; };
 		break;
 
 	case GhostForm::Good:
+		setTarget(mapController->player);
+		setRadius(defaultRadius);
 		this->elapsedTime = this->goodFormTime;
-		this->checkCollisionCallback = [=]() { onCheckCollision(); };
+		this->checkCollisionCallback = [=]() { onGoodFormCollision(); };
 		this->formActionCallback = [=](float t) { onEatenFormAction(t); };
+		this->getDestinationCallback = [=]() { return getFurthestPoint(); };
+		this->getSpeedCallback = [=]() { return speed / 2; };
+		break;
+
+	case GhostForm::Eaten:
+		setTarget(mapController->base);
+		setRadius(-1);
+		this->checkCollisionCallback = [=]() { doNothing(); };
+		this->formActionCallback = [=](float t) { doNothing(); };
+		this->getDestinationCallback = [=]() { return getNearestPoint(); };
+		this->getSpeedCallback = [=]() { return speed * 2; };
+		break;
+
+	case GhostForm::Door:
+		setTarget(mapController->door);
+		setRadius(-1);
+		this->checkCollisionCallback = [=]() { doNothing(); };
+		this->formActionCallback = [=](float t) { doNothing(); };
+		this->getDestinationCallback = [=]() { return getNearestPoint(); };
+		this->getSpeedCallback = [=]() { return speed; };
 		break;
 
 	default:
+		setTarget(mapController->player);
+		setRadius(-1);
 		this->checkCollisionCallback = [=]() { doNothing(); };
 		this->formActionCallback = [=](float t) { doNothing(); };
-	}
-}
-
-Vec2 Ghost::getDestination()
-{
-	switch (form) {
-	case GhostForm::Bad:
-		return getNearestPoint();
-		
-	case GhostForm::Good:
-		return getFurthestPoint();
-
-	case GhostForm::Eaten:
-		this->setTarget(mapController->base);
-		return getNearestPoint();
+		this->getDestinationCallback = [=]() { return getRandomPosition(); };
+		this->getSpeedCallback = [=]() { return speed; };
+		break;
 	}
 }
 
@@ -156,25 +258,17 @@ GhostForm Ghost::getForm()
 	return this->form;
 }
 
-float Ghost::getSpeed()
+GhostForm Ghost::getPreviousForm()
 {
-	switch (form) {
-	case GhostForm::Bad:
-		return speed;
-
-	case GhostForm::Good:
-		return speed / 2;
-
-	case GhostForm::Eaten:
-		this->setTarget(mapController->base);
-		return speed * 2;
-	}
+	return this->previousForm;
 }
 
 void Ghost::confirmDirection()
 {
 	switch (form) {
 	case GhostForm::Bad:
+	case GhostForm::Door:
+	case GhostForm::Base:
 		switch (direction) {
 		case Direction::Right: setAnimate(animateList.at(0)); break;
 		case Direction::Down: setAnimate(animateList.at(1)); break;
@@ -207,7 +301,8 @@ void Ghost::update(float deltaTime)
 Ghost::Ghost()
 {
 	this->target = nullptr;
-	changeForm(GhostForm::Bad);
+	this->radius = -1;
+	this->defaultRadius = -1;
 }
 
 Ghost::~Ghost()

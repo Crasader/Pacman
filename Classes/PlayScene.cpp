@@ -1,7 +1,7 @@
 #include "PlayScene.h"
 #include "StaticObject.h"
 #include <fstream>
-#include <MapController.h>
+#include "MapController.h"
 
 Scene * PlayScene::createScene()
 {
@@ -17,7 +17,7 @@ bool PlayScene::init()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 topLeft = origin + Vec2(0, visibleSize.height);
 
-	MapController* mapController = new MapController();
+	MapController* mapController = MapController::create();
 	mapController->loadFile("pacman_map.txt");
 	mapController->parseMap();
 	mapController->setPosition(topLeft);

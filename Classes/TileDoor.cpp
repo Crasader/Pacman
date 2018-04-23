@@ -1,13 +1,13 @@
-#include "TileBase.h"
+#include "TileDoor.h"
 #include "MapController.h"
 
 
-bool TileBase::triggerTile(Ghost * node, Direction direction)
+bool TileDoor::triggerTile(Ghost * node, Direction direction)
 {
 	if (TileMap::triggerTile(node, direction)) {
-		if (node->getForm() == GhostForm::Eaten) {
-			node->changeForm(GhostForm::Door);
-			node->setTarget(mapController->door);
+		if (node->getForm() == GhostForm::Door) {
+			node->changeForm(GhostForm::Bad);
+			node->setTarget(mapController->player);
 			node->passedPosition = node->beforeMovingPosition;
 			node->isMoving = false;
 			return true;
@@ -16,13 +16,13 @@ bool TileBase::triggerTile(Ghost * node, Direction direction)
 	return false;
 }
 
-TileBase::TileBase()
+TileDoor::TileDoor()
 {
 	this->triggerDirection = Direction::Null;
 	this->active = true;
 }
 
 
-TileBase::~TileBase()
+TileDoor::~TileDoor()
 {
 }

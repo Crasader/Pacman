@@ -83,6 +83,14 @@ TileBase * MapController::createTileBase(int col, int row)
 	return instance;
 }
 
+TileDoor * MapController::createTileDoor(int col, int row)
+{
+	auto instance = TileDoor::create();
+	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
+	instance->mapController = this;
+	return instance;
+}
+
 Vec2 MapController::getBlockOrigin()
 {
 	return Vec2(blockSize / 2.0f, -blockSize / 2.0f);
@@ -93,8 +101,34 @@ Vec2 MapController::getBlockOrigin()
 void MapController::changeGhostForm(GhostForm form)
 {
 	for each(Ghost* ghost in ghosts) {
-		ghost->changeForm(form);
+		ghost->changeForm(form, { GhostForm::Eaten });
 	}
+}
+
+void MapController::releaseGhost(float deltaTime)
+{
+	elapsedTime += deltaTime;
+	if (ghostCount < ghosts.size() && elapsedTime >= ghostCount * 8) {
+		ghosts.at(ghostCount)->changeForm(GhostForm::Door);
+		ghostCount++;
+	}
+}
+
+void MapController::respawn()
+{
+	player->respawn();
+	for (int i = 0; i < ghosts.size(); i++) {
+		ghosts.at(i)->respawn();
+	}
+	
+	elapsedTime = 0;
+	ghostCount = 0;
+}
+
+bool MapController::init()
+{
+	this->scheduleUpdate();
+	return true;
 }
 
 //-------------------- CORE FUNCTION (PUBLIC) ---------------------------- //
@@ -156,15 +190,26 @@ void MapController::parseMap()
 				}
 			}
 			else if (item == 'E') {
-				auto enemy = createGhost(j, i);
-				this->addChild(enemy);
-				ghosts.pushBack(enemy);
-				line.pushBack(createTileFree(j, i));
+				for (int k = 0; k < 4; k++) {
+					auto enemy = createGhost(j, i);
+					this->addChild(enemy);
+					ghosts.pushBack(enemy);
+				}
+				enemySpawn = createTileFree(j, i);
+				line.pushBack(enemySpawn);
+			}
+			else if (item == 'D') {
+				door = createTileDoor(j, i);
+				this->addChild(door);
+				line.pushBack(door);
 			}
 			else if (item == '1') {
 				player = createPacman(j, i);
 				this->addChild(player);
-				line.pushBack(createTileFree(j, i));
+
+				playerSpawn = createTileFree(j, i);
+				this->addChild(playerSpawn);
+				line.pushBack(playerSpawn);
 			}
 			else if (item == '9') {
 				auto tileFood = createTileFood(j, i);
@@ -187,8 +232,10 @@ void MapController::parseMap()
 		}
 		mapObject.push_back(line);
 	}
-	for each(Ghost* ghost in ghosts) {
-		ghost->setTarget(player);
+	for (int i = 0; i < ghosts.size(); i++) {
+		ghosts.at(i)->setGhostColor(i);
+		ghosts.at(i)->setDefaultRadius(150 + 100 * i);
+		ghosts.at(i)->changeForm(GhostForm::Base);
 	}
 	this->ready = true;
 }
@@ -200,7 +247,7 @@ bool MapController::isWalkable(Vec2 position, GhostForm form)
 	char item = map.at(row).at(col);
 
 	std::vector<char> banList = { '+', '=', '-', '|', ':', 'X', 'U' };
-	if (form != GhostForm::Eaten) {
+	if (form != GhostForm::Eaten && form != GhostForm::Door) {
 		banList.push_back('G');
 	}
 
@@ -282,6 +329,25 @@ Vec2 MapController::getFurthestPosition(Vec2 source, Vec2 des, Vec2 passedPositi
 	return max;
 }
 
+Vec2 MapController::getRandomPosition(Vec2 source, Vec2 passedPosition)
+{
+	Vec2 pos = source;
+	Vec2 posArray[4] = {
+		pos + Vec2(0, blockSize),
+		pos + Vec2(0, -blockSize),
+		pos + Vec2(-blockSize, 0),
+		pos + Vec2(blockSize, 0)
+	};
+	std::random_shuffle(std::begin(posArray), std::end(posArray));
+
+	for (int i = 0; i < 4; i++) {
+		if (isPositionValid(posArray[i]) && isWalkable(posArray[i]) && posArray[i] != passedPosition) {
+			return posArray[i];
+		}
+	}
+	return pos;
+}
+
 void MapController::reduceFoodCount()
 {
 	foodCount--;
@@ -298,6 +364,11 @@ bool MapController::isWin()
 bool MapController::isReady()
 {
  	return ready;
+}
+
+void MapController::update(float deltaTime)
+{
+	releaseGhost(deltaTime);
 }
 
 MapController::MapController()

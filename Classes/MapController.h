@@ -8,10 +8,15 @@
 #include "TileBlock.h"
 #include "TileBase.h"
 #include "TileBigFood.h"
+#include "TileDoor.h"
 USING_NS_CC;
 
 class MapController : public Node
 {
+private:
+	float elapsedTime = 0;
+	int ghostCount = 0;
+
 protected:
 	int foodCount = 0;
 	bool ready;
@@ -24,6 +29,9 @@ public:
 
 	Pacman* player;
 	TileBase* base;
+	TileDoor* door;
+	TileMap* enemySpawn;
+	TileMap* playerSpawn;
 	Vector<Ghost*> ghosts;
 
 protected:
@@ -35,14 +43,21 @@ protected:
 	TileBlock* createTileBlock(int col, int row);
 	TileBlock* createTileFree(int col, int row);
 	TileBase* createTileBase(int col, int row);
+	TileDoor* createTileDoor(int col, int row);
 
 	Vec2 getBlockOrigin();
 	
 public: /* Các hàm tính năng trong ingame */
 	virtual void changeGhostForm(GhostForm form);
 
+	virtual void releaseGhost(float deltaTime);
+
+	virtual void respawn();
+
 public:
 	CREATE_FUNC(MapController);
+
+	virtual bool init();
 
 	/**
 	  * Mở file theo fileName 
@@ -76,11 +91,15 @@ public:
 
 	virtual Vec2 getFurthestPosition(Vec2 source, Vec2 des, Vec2 passedPosition, GhostForm form = GhostForm::Bad);
 
+	virtual Vec2 getRandomPosition(Vec2 source, Vec2 passedPosition);
+
 	virtual void reduceFoodCount();
 
 	virtual bool isWin();
 
 	virtual bool isReady();
+
+	void update(float deltaTime) override;
 public:
 	MapController();
 	~MapController();
