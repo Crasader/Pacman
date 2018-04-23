@@ -18,7 +18,7 @@ bool IntroScene::init()
 	Vec2 center = origin + visibleSize / 2;
 	Vec2 topRight = origin + visibleSize;
 
-	auto logo = Sprite::create("logo.png");
+	auto logo = Sprite::create("sprites/logo.png");
 	logo->setScale(1.2f);
 	logo->setPosition(Vec2(center.x, topRight.y - logo->getBoundingBox().size.height));
 	this->addChild(logo);

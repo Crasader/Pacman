@@ -1,6 +1,4 @@
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
-#include "GameScene.h"
 #include "PlayScene.h"
 #include "IntroScene.h"
 
@@ -62,9 +60,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("TenProject", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+        glview = GLViewImpl::createWithRect("Pacman - HillClimbing", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
 #else
-        glview = GLViewImpl::create("TenProject");
+        glview = GLViewImpl::create("Pacman - HillClimbing");
 #endif
         director->setOpenGLView(glview);
     }

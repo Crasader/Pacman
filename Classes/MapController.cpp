@@ -9,7 +9,7 @@
 Pacman * MapController::createPacman(int col, int row)
 {
 	Pacman* instance = Pacman::create();
-	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->initialize(Sprite::create("sprites/block.png"), "", this);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
 	instance->sprite->setScale(1.3f);
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
@@ -23,7 +23,7 @@ Pacman * MapController::createPacman(int col, int row)
 Ghost * MapController::createGhost(int col, int row)
 {
 	Ghost* instance = Ghost::create();
-	instance->initialize(Sprite::create("block.png"), "", this);
+	instance->initialize(Sprite::create("sprites/block.png"), "", this);
 	instance->sprite->setContentSize(Size(blockSize, blockSize));
 	instance->sprite->setScale(1.3f);
 	instance->setPosition(getBlockOrigin() + Vec2(col * blockSize, -row * blockSize));
@@ -179,7 +179,7 @@ void MapController::loadFile(std::string fileName)
 	}
 
 	
-	this->face = Sprite::create("maze3.png");
+	this->face = Sprite::create("sprites/maze3.png");
 	
 	auto oriSize = face->getContentSize();
 	float scaleX = blockSize * 28 / oriSize.width;

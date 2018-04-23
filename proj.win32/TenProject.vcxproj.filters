@@ -22,6 +22,9 @@
     <Filter Include="src\Core\Object">
       <UniqueIdentifier>{3a486351-eb76-4758-8b41-3003895845a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{827d32df-057a-422a-86c0-9cf527f99ac0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -29,12 +32,6 @@
     </ClCompile>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\GameScene.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\HelloWorldScene.cpp">
-      <Filter>src\Scene</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\PlayScene.cpp">
       <Filter>src\Scene</Filter>
@@ -89,12 +86,6 @@
     <ClInclude Include="..\Classes\AppDelegate.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\Classes\GameScene.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\HelloWorldScene.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="..\Classes\PlayScene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
@@ -143,5 +134,10 @@
     <ClInclude Include="..\Classes\StaticStorage.h">
       <Filter>src\Utils</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

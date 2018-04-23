@@ -18,7 +18,7 @@ bool PlayScene::init()
 	Vec2 topLeft = origin + Vec2(0, visibleSize.height);
 
 	MapController* mapController = MapController::create();
-	mapController->loadFile("pacman_map.txt");
+	mapController->loadFile("res/pacman_map.txt");
 	mapController->parseMap();
 	mapController->setPosition(topLeft - Vec2(mapController->blockSize, 0));
 
